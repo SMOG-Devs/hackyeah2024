@@ -1,5 +1,6 @@
 from moviepy.editor import VideoFileClip
 from pathlib import Path
+from pydub import AudioSegment
 
 
 def extract_audio(video_path: str, audio_path: str) -> None:
@@ -14,17 +15,8 @@ def extract_audio(video_path: str, audio_path: str) -> None:
         None
     """
     # Load the video file
-    video = VideoFileClip(video_path)
-
-    # Extract audio
-    audio = video.audio
-
-    # Write audio to the specified file
-    audio.write_audiofile(audio_path)
-
-    # Close video and audio files
-    audio.close()
-    video.close()
+    audio = AudioSegment.from_file(video_path, format="mp4")
+    audio.export(audio_path, format="wav")
 
 
 if __name__ == "__main__":

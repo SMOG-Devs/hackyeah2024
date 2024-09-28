@@ -5,3 +5,6 @@ def get_root_path() -> Path:
 
 def get_video_nr(number: int) -> Path:
     return get_root_path() / 'data/Videos' / f"HY_2024_film_{number:02}.mp4"
+
+def audio_directory(number: int) -> Path:
+    return get_root_path() / 'data' / 'OutData' / f"HY_2024_film_{number:02}.wav"
