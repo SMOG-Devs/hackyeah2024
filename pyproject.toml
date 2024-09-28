@@ -19,6 +19,8 @@ matplotlib = "^3.9.2"
 easyocr = "^1.7.2"
 nltk = "^3.9.1"
 jupyter = "^1.1.1"
+openai = "^1.50.2"
+webrtcvad = "^2.0.10"
 
 
 [build-system]
