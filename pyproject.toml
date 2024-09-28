@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "hackyeah2024"
+version = "0.1.0"
+description = ""
+authors = [
+    "YgLK <jkbszpunar@gmail.com>",
+    "Zogfryt <zogfryt@gmail.com>",
+    "kuballa <jziomek669@gmail.com>",
+    "BartoszSambor <bartek.sambor@gmail.com>",
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
