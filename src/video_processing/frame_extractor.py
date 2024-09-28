@@ -55,7 +55,7 @@ if __name__ == "__main__":
     video_path = r"C:\coding\hackyeah2024\videos\HY_2024_film_01.mp4"
     file_name = video_path.split("\\")[-1].split(".")[0]
     # Directory where extracted frames will be saved
-    output_dir = rf"./../../frames/{file_name}"
+    output_dir = rf"../../data/frames/{file_name}"
 
     # Initialize the VideoFrameExtractor
     extractor = VideoFrameExtractor(video_path, output_dir)
