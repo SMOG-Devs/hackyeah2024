@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import cv2
 import os
 from typing import Optional
@@ -52,13 +54,12 @@ class VideoFrameExtractor:
 
 if __name__ == "__main__":
     # Path to the input video file
-    video_path = r"C:\coding\hackyeah2024\videos\HY_2024_film_01.mp4"
-    file_name = video_path.split("\\")[-1].split(".")[0]
+    video_path = Path(r"C:\coding\hackyeah2024\data\videos\HY_2024_film_01.mp4")
     # Directory where extracted frames will be saved
-    output_dir = rf"../../data/frames/{file_name}"
+    output_dir = video_path.parent.parent / "frames" / video_path.stem
 
     # Initialize the VideoFrameExtractor
-    extractor = VideoFrameExtractor(video_path, output_dir)
+    extractor = VideoFrameExtractor(video_path.as_posix(), output_dir.as_posix())
 
     # Extract frames from the video at a frame rate of 10 (i.e., save every 10th frame)
     extractor.extract_frames(frame_rate=5)
