@@ -124,7 +124,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             yield Silence(start=start, end=frame.timestamp)
             start = None
             
-        sys.stdout.write('1' if is_speech else '0')
+        # sys.stdout.write('1' if is_speech else '0')
         if not triggered:
             ring_buffer.append((frame, is_speech))
             num_voiced = len([f for f, speech in ring_buffer if speech])
@@ -133,7 +133,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             # TRIGGERED state.
             if num_voiced > 0.9 * ring_buffer.maxlen:
                 triggered = True
-                sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
+                # sys.stdout.write('+(%s)' % (ring_buffer[0][0].timestamp,))
                 # We want to yield all the audio we see from now until
                 # we are NOTTRIGGERED, but we have to start with the
                 # audio that's already in the ring buffer.
@@ -150,14 +150,14 @@ def vad_collector(sample_rate, frame_duration_ms,
             # unvoiced, then enter NOTTRIGGERED and yield whatever
             # audio we've collected.
             if num_unvoiced > 0.9 * ring_buffer.maxlen:
-                sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+                # sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
                 triggered = False
                 yield b''.join([f.bytes for f in voiced_frames])
                 ring_buffer.clear()
                 voiced_frames = []
-    if triggered:
-        sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
-    sys.stdout.write('\n')
+    # if triggered:
+    #     sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
+    # sys.stdout.write('\n')
     # If we have any leftover voiced audio when we run out of input,
     # yield it.
     if voiced_frames:
@@ -165,6 +165,7 @@ def vad_collector(sample_rate, frame_duration_ms,
 
 
 def vad_find_silence(audio_path: str, directory_path: str):
+    print(audio_path)
     audio, sample_rate = vad_read_wave(audio_path)
     vad = webrtcvad.Vad(1)
     frames = frame_generator(30, audio, sample_rate)
@@ -174,10 +175,10 @@ def vad_find_silence(audio_path: str, directory_path: str):
     for i, segment in enumerate(segments):
         if isinstance(segment,Silence):
             silences.append(segment)
-            print(segment)
+            # print(segment)
         if isinstance(segment,bytes):
             path = os.path.join(directory_path, f'chunk-{i:02}.wav')
-            print(' Writing %s' % (path,))
+            # print(' Writing %s' % (path,))
             vad_write_wave(path, segment, sample_rate)
     return silences
         
