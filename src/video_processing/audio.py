@@ -1,4 +1,3 @@
-from moviepy.editor import VideoFileClip
 from pathlib import Path
 from pydub import AudioSegment
 
@@ -16,6 +15,7 @@ def extract_audio(video_path: str, audio_path: str) -> None:
     """
     # Load the video file
     audio = AudioSegment.from_file(video_path, format="mp4")
+    audio = audio.set_channels(1)
     audio.export(audio_path, format="wav")
 
 

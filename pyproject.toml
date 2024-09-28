@@ -23,6 +23,7 @@ openai = "^1.50.2"
 webrtcvad = "^2.0.10"
 python-dotenv = "^1.0.1"
 pydub = "^0.25.1"
+#librosa="^0.10.2.post1" install with pip
 
 
 [build-system]
