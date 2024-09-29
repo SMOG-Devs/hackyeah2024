@@ -39,13 +39,6 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.post("/video/analyze")
-def extract_offset_from_name(name: str) -> float:
-    name_ = name.split(sep='.')[:-1]
-    name_ = '.'.join(name_)
-    offset = name_.split('__')
-    return float(offset)
-
 
 @app.post("/video/analyze")
 async def analyze(file: UploadFile):
