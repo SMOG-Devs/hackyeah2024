@@ -12,6 +12,8 @@ RUN apt-get update --fix-missing && apt-get install -y \
 
 RUN apt-get update && apt-get install wget build-essential cmake libfreetype6-dev pkg-config libfontconfig-dev libjpeg-dev libopenjp2-7-dev -y
 
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+
 COPY ./requirements.txt .
 
 RUN pip install --upgrade pip 
