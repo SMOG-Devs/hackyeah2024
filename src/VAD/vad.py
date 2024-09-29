@@ -152,7 +152,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             if num_unvoiced > 0.9 * ring_buffer.maxlen:
                 # sys.stdout.write('-(%s)' % (frame.timestamp + frame.duration))
                 triggered = False
-                yield b''.join([f.bytes for f in voiced_frames])
+                yield (b''.join([f.bytes for f in voiced_frames]),f"{voiced_frames[0].timestamp}__{voiced_frames[-1].timestamp + voiced_frames[-1].duration}.wav")
                 ring_buffer.clear()
                 voiced_frames = []
     # if triggered:
@@ -176,10 +176,10 @@ def vad_find_silence(audio_path: str, directory_path: str) -> list[Silence]:
         if isinstance(segment, Silence):
             silences.append(segment)
             # print(segment)
-        if isinstance(segment, bytes):
-            path = os.path.join(directory_path, f'chunk-{i:02}.wav')
+        else:
+            path = os.path.join(directory_path, segment[1])
             # print(' Writing %s' % (path,))
-            vad_write_wave(path, segment, sample_rate)
+            vad_write_wave(path, segment[0], sample_rate)
     return silences
         
 

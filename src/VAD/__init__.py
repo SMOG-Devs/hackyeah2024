@@ -1,5 +1,6 @@
-from .vad import vad_find_silence
+from .vad import vad_find_silence, Silence
 
 __all__ = [
-    'vad_find_silence'
+    'vad_find_silence',
+    'Silence'
 ]

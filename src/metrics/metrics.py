@@ -1,6 +1,8 @@
 import nltk
 import re
-from typing import List
+from typing import List, Tuple
+from openai.types.audio import TranscriptionWord
+from VAD import Silence
 
 nltk.download('punkt_tab')
 
@@ -50,6 +52,26 @@ def flesch_reading_ease(text: str) -> float:
     score = 206.835 - (1.015 * (words_count / sentences_count)) - (84.6 * (syllables_count / words_count))
     return score
 
+def wpm(text: List[Tuple[float,List[TranscriptionWord]]]):
+    words: List[float] = []
+    for offset, word_list in text:
+        for word in word_list:
+            words.append(offset + word.start)
+            
+    words = sorted(words)
+    start, step = 0, 5
+    bins = []
+    counts = []
+    while start < words[-1].end:
+        bins.append((start,start+step))
+        counts.append(0)
+    
+    for word in words:
+        for index, (beg, end) in enumerate(bins):
+            if beg <= word or end < word:
+                counts[index] += 1
+    
+    return [count * 12 for count in counts]
 
 if __name__ == "__main__":
     # Przykładowe zdania do testowania

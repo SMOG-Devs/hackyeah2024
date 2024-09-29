@@ -9,12 +9,17 @@ class Whisper:
         load_dotenv(secret_path)
         self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         
-    def transcribe(self, audio_file):
-        transcript = self.client.audio.transcriptions.create(
-        model="whisper-1",
-        response_format="text",
-        # timestamp_granularities=["word"],
-        file=audio_file
-        )
+    def transcribe(self, audio_file, timespans: bool = False):
+        if timespans:
+            return self.client.audio.transcriptions.create(
+            model="whisper-1",
+            response_format="verbose_json",
+            timestamp_granularities=["word"],
+            file=audio_file
+        ).words
         
-        return transcript
+        return self.client.audio.transcriptions.create(
+            model="whisper-1",
+            response_format="text",
+            file=audio_file
+        )
