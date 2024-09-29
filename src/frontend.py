@@ -148,7 +148,7 @@ def create_plot_for_pwm():
     ax.set_ylabel('Ilość słów na minutę')
 
     # Display the plot in the Streamlit app
-    st.subheader("Ilość słów na minutę (WPM) w czasie")
+    st.subheader("Analiza tempa - ilość słów na minutę (WPM) w czasie")
     st.pyplot(fig)
 
     diff_threshold = 30

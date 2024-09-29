@@ -108,7 +108,7 @@ def vad_collector(sample_rate, frame_duration_ms,
     start = None
     for frame in frames:
         is_speech = vad.is_speech(frame.bytes, sample_rate)
-        
+
         if first and is_speech == 1:
             last = 1
             first = False
@@ -123,7 +123,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             last = 1
             yield Silence(start=start, end=frame.timestamp)
             start = None
-            
+
         # sys.stdout.write('1' if is_speech else '0')
         if not triggered:
             ring_buffer.append((frame, is_speech))
@@ -173,10 +173,10 @@ def vad_find_silence(audio_path: str, directory_path: str) -> list[Silence]:
     segments = vad_collector(sample_rate, 30, 300, vad, frames)
     silences = []
     for i, segment in enumerate(segments):
-        if isinstance(segment,Silence):
+        if isinstance(segment, Silence):
             silences.append(segment)
             # print(segment)
-        if isinstance(segment,bytes):
+        if isinstance(segment, bytes):
             path = os.path.join(directory_path, f'chunk-{i:02}.wav')
             # print(' Writing %s' % (path,))
             vad_write_wave(path, segment, sample_rate)
