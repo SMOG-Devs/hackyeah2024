@@ -158,7 +158,7 @@ def main():
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
             temp_video_file.write(video_file.read())
             output = send_mp4_file(temp_video_file.name,
-                                   "https://https://backendd.internal.graydune-f2016363.polandcentral"
+                                   "https://backendd.internal.graydune-f2016363.polandcentral"
                                    ".azurecontainerapps.io/video/analyze")
             temp_video_file_path = temp_video_file.name
             temp_vid_length = get_video_length(temp_video_file_path)
