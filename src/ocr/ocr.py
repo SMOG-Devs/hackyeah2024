@@ -85,6 +85,54 @@ def perform_ocr(image: np.ndarray, crop_area: Optional[Tuple[int, int, int, int]
     return extracted_text
 
 
+def ocr_on_video(video_path: str, crop_area: Optional[Tuple[int, int, int, int]] = (400, 880, 1520, 1080)) -> list[str]:
+    """
+    Perform OCR on a video file by extracting frames and processing them.
+
+    :param crop_area:
+    :param video_path: Path to the input video file.
+    :return: Extracted text from the video.
+    """
+    # Initialize the EasyOCR reader with Polish as the default language
+    reader = easyocr.Reader(['pl'], gpu=True)  # Specify Polish language
+
+    # Initialize an empty string to store the extracted text
+    extracted_text = []
+
+    # Initialize the video capture object
+    cap = cv2.VideoCapture(video_path)
+
+    # Loop through the video frames
+    while cap.isOpened():
+        # Read a frame from the video
+        ret, image = cap.read()
+
+        # Break the loop if the frame is not read properly
+        if not ret:
+            break
+
+        # If a crop area is provided, validate and apply the crop
+        if crop_area:
+            x1, y1, x2, y2 = crop_area
+            if x1 >= x2 or y1 >= y2:
+                raise ValueError("Invalid crop area provided.")
+
+            # Crop the image using the specified coordinates
+            image = image[y1:y2, x1:x2]
+
+        # Perform OCR on the frame
+        results = reader.readtext(image)
+
+        # Extract text from results
+        frame_text = ' '.join([result[1] for result in results])
+        extracted_text.append(frame_text)
+
+    # Release the video capture object
+    cap.release()
+
+    return extracted_text
+
+
 if __name__ == "__main__":
     # Path to the input image
     image_path = r"C:\coding\hackyeah2024\frames\HY_2024_film_01\frame_000061.jpg"

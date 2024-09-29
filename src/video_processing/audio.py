@@ -2,7 +2,7 @@ from pathlib import Path
 from pydub import AudioSegment
 
 
-def extract_audio(video_path: str, audio_path: str) -> None:
+def extract_audio(video_path: str, audio_path: str) -> str:
     """
     Extracts audio from a video file and saves it to the specified audio file.
 
@@ -11,12 +11,13 @@ def extract_audio(video_path: str, audio_path: str) -> None:
         audio_path (str): The path to save the extracted audio file.
 
     Returns:
-        None
+        str: The path to the extracted audio file.
     """
     # Load the video file
     audio = AudioSegment.from_file(video_path, format="mp4")
     audio = audio.set_channels(1)
     audio.export(audio_path, format="wav")
+    return audio_path
 
 
 if __name__ == "__main__":

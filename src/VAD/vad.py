@@ -42,12 +42,12 @@ class Frame(object):
     bytes: bytes
     timestamp: float
     duration: float
-    
+
 @dataclass
 class Silence:
     start: float
     end: float
-    
+
     def __str__(self) -> str:
         return f"{self.start}:{self.end}"
 
@@ -108,7 +108,7 @@ def vad_collector(sample_rate, frame_duration_ms,
     start = None
     for frame in frames:
         is_speech = vad.is_speech(frame.bytes, sample_rate)
-        
+
         if first and is_speech == 1:
             last = 1
             first = False
@@ -123,7 +123,7 @@ def vad_collector(sample_rate, frame_duration_ms,
             last = 1
             yield Silence(start=start, end=frame.timestamp)
             start = None
-            
+
         # sys.stdout.write('1' if is_speech else '0')
         if not triggered:
             ring_buffer.append((frame, is_speech))
@@ -164,7 +164,8 @@ def vad_collector(sample_rate, frame_duration_ms,
         yield b''.join([f.bytes for f in voiced_frames])
 
 
-def vad_find_silence(audio_path: str, directory_path: str):
+def vad_find_silence(audio_path: str, directory_path: str) -> list[Silence]:
+    print(audio_path)
     audio, sample_rate = vad_read_wave(audio_path)
     vad = webrtcvad.Vad(1)
     frames = frame_generator(30, audio, sample_rate)
@@ -172,7 +173,7 @@ def vad_find_silence(audio_path: str, directory_path: str):
     segments = vad_collector(sample_rate, 30, 300, vad, frames)
     silences = []
     for i, segment in enumerate(segments):
-        if isinstance(segment,Silence):
+        if isinstance(segment, Silence):
             silences.append(segment)
             # print(segment)
         else:
