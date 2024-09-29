@@ -12,9 +12,9 @@ class Whisper:
     def transcribe(self, audio_file):
         transcript = self.client.audio.transcriptions.create(
         model="whisper-1",
-        response_format="verbose_json",
-        timestamp_granularities=["word"],
+        response_format="text",
+        # timestamp_granularities=["word"],
         file=audio_file
         )
         
-        return transcript.words
+        return transcript
