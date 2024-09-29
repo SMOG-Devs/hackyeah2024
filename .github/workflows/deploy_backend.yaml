@@ -22,14 +22,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.TOKEN }}
 
-    - name: Push images
-      uses: docker/build-push-action@v6
-      with:
-        context: ${{ matrix.context }}
-        file: ${{ matrix.dockerfile }}
-        push: true
-        tags: ${{ format('{0}{1}:latest', secrets.AZURE_URL , matrix.image) }}
-
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
