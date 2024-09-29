@@ -4,18 +4,20 @@ import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
 from moviepy.video.io.VideoFileClip import VideoFileClip
+import pandas as pd
+import plotly.express as px
 
 from VAD.vad import vad_find_silence
 from video_processing.audio import extract_audio
 
 
-def is_topic_switched():
+def is_topic_switched() -> bool:
     not_topic_switch: bool = True  # czy jest spojny
     return not_topic_switch
 
 
-def prepare_summary():
-    summary: list[str] = ["dupa1", "udpa2"]  # bulletpointy
+def prepare_summary() -> list[str]:
+    summary = "dupa1\nudpa2".split("-")  # bulletpointy
     return summary
 
 
@@ -140,16 +142,19 @@ def create_plot_for_pwm():
     x_values = list(pwm.keys())  # Time segments (seconds)
     y_values = list(pwm.values())  # Words per minute values
 
+    # Create a DataFrame
+    data = pd.DataFrame({'Czas nagrania [s]': x_values, 'Ilość słów na minutę': y_values})
+
     # Create the plot
-    fig, ax = plt.subplots(figsize=(8, 3))
-    ax.plot(x_values, y_values, marker='o', linestyle='-', color='b')
-    # Set labels and title
-    ax.set_xlabel('Czas nagrania [s]')
-    ax.set_ylabel('Ilość słów na minutę')
+    fig = px.line(data, x='Czas nagrania [s]', y='Ilość słów na minutę', markers=True,
+                  title='Analiza tempa - ilość słów na minutę (WPM) w czasie')
+
+    # Set the axis labels
+    fig.update_layout(xaxis_title='Czas nagrania [s]', yaxis_title='Ilość słów na minutę')
 
     # Display the plot in the Streamlit app
     st.subheader("Analiza tempa - ilość słów na minutę (WPM) w czasie")
-    st.pyplot(fig)
+    st.plotly_chart(fig)
 
     diff_threshold = 30
     diffs = []
