@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import tempfile
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,48 +6,30 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 import pandas as pd
 import plotly.express as px
 
-from VAD.vad import vad_find_silence
-from video_processing.audio import extract_audio
+import requests
+from typing import Dict
 
 
-def is_topic_switched() -> bool:
-    not_topic_switch: bool = True  # czy jest spojny
-    return not_topic_switch
+def send_mp4_file(file_path: str, url: str) -> Dict[str, str]:
+    """
+    Sends an MP4 file to a FastAPI endpoint using a POST request.
+
+    :param file_path: Path to the MP4 file to be sent
+    :param url: URL of the FastAPI file upload endpoint
+    :return: Response JSON from the server
+    """
+    with open(file_path, 'rb') as file:
+        # Prepare the file to be sent as multipart/form-data
+        files = {'file': (file_path, file, 'video/mp4')}
+        # Send the POST request
+        response = requests.post(url, files=files)
+        # Ensure the request was successful
+        response.raise_for_status()
+        return response.json()
 
 
-def prepare_summary() -> list[str]:
-    summary = "dupa1\nudpa2".split("-")  # bulletpointy
+def prepare_summary(summary) -> list[str]:
     return summary
-
-
-def is_speech_structure_preserved():
-    # czy jest zachowaana struktura wypowiedzi
-    speech_structure: str = "Structure is not good, not terrible. The ending is missing and shit, ya'know brother."
-    return speech_structure
-
-
-def get_words_per_minute():
-    # sliding window seconds center -> PWM of the window
-    words_per_minute: dict[int, int] = {
-        10: 140,
-        15: 90,
-        20: 145,
-        25: 123,
-        30: 132,
-    }
-    return words_per_minute
-
-
-def get_metrics():
-    """
-    Returns gunning_fog_index, flesch_reading_ease.
-    """
-    gunning_fog_index = 20
-    flesch_reading_ease = 123.23
-    return {
-        "gunning_fog_index": gunning_fog_index,
-        "flesch_reading_ease": flesch_reading_ease
-    }
 
 
 def display_video(video_path: str):
@@ -61,7 +42,7 @@ def display_video(video_path: str):
     st.video(video_path, start_time=0)
 
 
-def prepare_video_analysis():
+def prepare_video_analysis(output: dict):
     # Streamlit app with sidebar
     st.sidebar.title("Analiza mowy oraz metryki")
 
@@ -69,25 +50,24 @@ def prepare_video_analysis():
     st.sidebar.subheader("Spójność tematu")
     st.sidebar.write(
         "Temat wypowiedzi został zmieniony w trakcie wypowiedzi."
-        if is_topic_switched() else
+        if not output.not_changed_topic else
         "Temat wypowiedzi jest spójny podczas wypowiedzi."
     )
 
     # Display summary
     st.sidebar.subheader("Podsumowanie wypowiedzi")
-    summary = prepare_summary()
-    for bullet in summary:
-        st.sidebar.write(f"- {bullet}")
+    summary = prepare_summary(output.summary)
+    st.sidebar.write(f"{summary}")
 
     # Display speech structure feedback
     st.sidebar.subheader("Struktura wypowiedzi")
-    st.sidebar.write(is_speech_structure_preserved())
+    st.sidebar.write(output.structure)
 
     # Display readability metrics
-    st.sidebar.subheader("Wskaźnik czytelności")
-    metrics = get_metrics()
-    st.sidebar.metric("Współczynnik mglistości Gunninga", metrics["gunning_fog_index"])
-    st.sidebar.metric("Indeks czytelności Flescha", metrics["flesch_reading_ease"])
+    # st.sidebar.subheader("Wskaźnik czytelności")
+    # metrics = get_metrics()
+    # st.sidebar.metric("Współczynnik mglistości Gunninga", metrics["gunning_fog_index"])
+    # st.sidebar.metric("Indeks czytelności Flescha", metrics["flesch_reading_ease"])
 
 
 def get_video_length(file_path: str) -> float:
@@ -101,19 +81,17 @@ def get_video_length(file_path: str) -> float:
         return video_clip.duration
 
 
-def create_silence_segmentation_plot(audio_path: str, video_length: float):
+def create_silence_segmentation_plot(output: dict, video_length: float):
     """
     Creates a spectrogram from the audio track of the video.
     """
-    silences = vad_find_silence(audio_path, os.path.dirname(audio_path))
-
     # create segmentation plot based on the length of the audio and the silences
     fig, ax = plt.subplots()
     ax.imshow(np.ones((1, int(video_length))), cmap='Greens')
     # silence have start and end time, so we can calculate the duration
     height = 3
-    for silence in silences:
-        ax.add_patch(plt.Rectangle((silence.start, 0), silence.end - silence.start, height, color='black'))
+    for start, end in output.silences:
+        ax.add_patch(plt.Rectangle((start, 0), end - start, height, color='black'))
     ax.set_xlim(0, int(video_length))
     ax.set_ylim(0, height)
 
@@ -124,23 +102,22 @@ def create_silence_segmentation_plot(audio_path: str, video_length: float):
     st.pyplot(fig)
     # prepare pauzy w mowie
     start_stop_silence: list[tuple[float, float]] = []
-    for silence in silences:
-        if silence.start != 0 and silence.end != video_length:
-            start_stop_silence.append((silence.start, silence.end))
+    for start, end in output.silences:
+        if start != 0 and end != video_length:
+            start_stop_silence.append((start, end))
     st.write(f"Pauzy w mowie wykryte w przedziałach czasowych:")
     for idx, (start, stop) in enumerate(start_stop_silence):
         st.write(f"\t* {start:.2f} - {stop:.2f}")
 
 
-def create_plot_for_pwm():
+def create_plot_for_pwm(pvm: tuple[list[int], list[int]]):
     """
     Creates and displays a plot for words per minute (WPM) over time.
     """
-    pwm = get_words_per_minute()
 
     # Extract the x and y values from the dictionary
-    x_values = list(pwm.keys())  # Time segments (seconds)
-    y_values = list(pwm.values())  # Words per minute values
+    x_values = pvm[0]  # Time segments (seconds)
+    y_values = pvm[1]  # Words per minute values
 
     # Create a DataFrame
     data = pd.DataFrame({'Czas nagrania [s]': x_values, 'Ilość słów na minutę': y_values})
@@ -158,7 +135,8 @@ def create_plot_for_pwm():
 
     diff_threshold = 30
     diffs = []
-    for idx, (time, pwm) in enumerate(pwm.items()):
+    pwm = zip(x_values, y_values)
+    for idx, (time, pwm) in enumerate(pwm):
         if idx > 0:
             diff = abs(pwm - y_values[idx - 1])
             if diff > diff_threshold:
@@ -179,10 +157,11 @@ def main():
         # Create a temporary file to save the uploaded video
         with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_video_file:
             temp_video_file.write(video_file.read())
+            output = send_mp4_file(temp_video_file.name,
+                                   "https://https://backendd.internal.graydune-f2016363.polandcentral"
+                                   ".azurecontainerapps.io/video/analyze")
             temp_video_file_path = temp_video_file.name
             temp_vid_length = get_video_length(temp_video_file_path)
-            audio_path = "data/audio/audio.wav"
-            extract_audio(temp_video_file_path, audio_path)
 
             # perform OCR on the video, i need video path
             # if st.sidebar.button("Perform OCR"):
@@ -191,9 +170,9 @@ def main():
                 with st.spinner('Proszę czekać, trwa analiza wideo...'):
                     # Display the uploaded video
                     display_video(temp_video_file_path)
-                    prepare_video_analysis()
-                    create_silence_segmentation_plot(audio_path, temp_vid_length)
-                    create_plot_for_pwm()
+                    prepare_video_analysis(output)
+                    create_silence_segmentation_plot(output, temp_vid_length)
+                    create_plot_for_pwm(output["vpm"])
 
 
 if __name__ == "__main__":
