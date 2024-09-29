@@ -42,12 +42,12 @@ class Frame(object):
     bytes: bytes
     timestamp: float
     duration: float
-    
+
 @dataclass
 class Silence:
     start: float
     end: float
-    
+
     def __str__(self) -> str:
         return f"{self.start}:{self.end}"
 
@@ -164,7 +164,7 @@ def vad_collector(sample_rate, frame_duration_ms,
         yield b''.join([f.bytes for f in voiced_frames])
 
 
-def vad_find_silence(audio_path: str, directory_path: str):
+def vad_find_silence(audio_path: str, directory_path: str) -> list[Silence]:
     print(audio_path)
     audio, sample_rate = vad_read_wave(audio_path)
     vad = webrtcvad.Vad(1)
