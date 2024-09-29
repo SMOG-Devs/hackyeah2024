@@ -52,7 +52,7 @@ def flesch_reading_ease(text: str) -> float:
     score = 206.835 - (1.015 * (words_count / sentences_count)) - (84.6 * (syllables_count / words_count))
     return score
 
-def wpm(text: List[Tuple[float,List[TranscriptionWord]]]):
+def words_per_minute(text: List[Tuple[float,List[TranscriptionWord]]], audio_length: float):
     words: List[float] = []
     for offset, word_list in text:
         for word in word_list:
@@ -62,7 +62,8 @@ def wpm(text: List[Tuple[float,List[TranscriptionWord]]]):
     start, step = 0, 5
     bins = []
     counts = []
-    while start < words[-1].end:
+    audio_len_final = audio_length if audio_length > words[-1] else words[-1]
+    while start < audio_len_final:
         bins.append((start,start+step))
         counts.append(0)
     
@@ -71,7 +72,7 @@ def wpm(text: List[Tuple[float,List[TranscriptionWord]]]):
             if beg <= word or end < word:
                 counts[index] += 1
     
-    return [count * 12 for count in counts]
+    return [count * 12 for count in counts], [tup[1] for tup in bins]
 
 if __name__ == "__main__":
     # Przykładowe zdania do testowania
