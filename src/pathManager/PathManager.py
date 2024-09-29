@@ -15,3 +15,6 @@ def audio_vad_directory(number: int) -> Path:
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     return dir_path
+
+def secrets_path() -> Path:
+    return get_root_path() / '.env'
