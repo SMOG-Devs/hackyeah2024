@@ -24,7 +24,6 @@ RUN mkdir ./data/OutData
 RUN mkdir ./data/VadOutData
 RUN mkdir ./data/Videos
 
-
 COPY ./src/metrics ./metrics
 COPY ./src/ocr ./ocr
 COPY ./src/OpenAINodes ./OpenAINodes
