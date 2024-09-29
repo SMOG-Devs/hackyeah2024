@@ -24,6 +24,8 @@ webrtcvad = "^2.0.10"
 python-dotenv = "^1.0.1"
 pydub = "^0.25.1"
 #librosa="^0.10.2.post1" install with pip
+pandas = "^2.2.3"
+plotly = "^5.24.1"
 
 
 [build-system]

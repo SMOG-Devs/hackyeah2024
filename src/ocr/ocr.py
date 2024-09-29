@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def crop_image_and_remove(image_path: str, crop_area: Tuple[int, int, int, int]) -> np.array:
+def crop_image_and_remove(image: np.array, crop_area: Tuple[int, int, int, int]) -> np.array:
     """
     Crop the image from the specified area and remove that portion from the original image.
 
@@ -18,7 +18,6 @@ def crop_image_and_remove(image_path: str, crop_area: Tuple[int, int, int, int])
     :return: Tuple containing the remaining image and the cropped portion of the image.
     """
     # Load the image using OpenCV
-    image = cv2.imread(image_path)
     if image is None:
         raise FileNotFoundError(f"Image not found at {image_path}")
 
@@ -140,7 +139,8 @@ if __name__ == "__main__":
     crop_area: Tuple[int, int, int, int] = (400, 880, 1520, 1080)
 
     # Crop the image and get the cropped portion
-    cropped_image = crop_image_and_remove(image_path, crop_area=crop_area)
+    image = cv2.imread(image_path)
+    cropped_image = crop_image_and_remove(image, crop_area=crop_area)
     # convert to grayscale
     gray_image = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
     gray_image = (gray_image == gray_image.max()) * 255
